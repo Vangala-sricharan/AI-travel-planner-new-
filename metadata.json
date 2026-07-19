@@ -1,0 +1,10 @@
+{
+  "name": "AI Travel Planner",
+  "description": "An intelligent, high-fidelity AI-powered travel planner that generates customized itineraries, budgets, packing lists, and local recommendations.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
