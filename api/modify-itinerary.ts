@@ -1,7 +1,7 @@
 import "dotenv/config";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI, Type } from "@google/genai";
-import { generateContentWithRetry, formatGeminiError } from "./gemini-client.ts";
+import { generateContentWithRetry, formatGeminiError, DEFAULT_GEMINI_MODEL } from "./gemini-client.ts";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
@@ -181,7 +181,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ]
     };
 
-    const selectedModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const selectedModel = process.env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL;
 
     const response = await generateContentWithRetry(ai, {
       model: selectedModel,
