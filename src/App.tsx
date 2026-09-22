@@ -128,12 +128,18 @@ function TravelPlannerApp() {
       generationError.toLowerCase().includes("503") ||
       generationError.toLowerCase().includes("busy") ||
       generationError.toLowerCase().includes("rate limit") ||
+      generationError.toLowerCase().includes("quota") ||
+      generationError.toLowerCase().includes("429") ||
       generationError.toLowerCase().includes("spikes in demand");
 
     const isMissingKey =
-      generationError.toLowerCase().includes("api key") ||
-      generationError.toLowerCase().includes("gemini_api_key") ||
-      generationError.toLowerCase().includes("missing key");
+      !isTemporarilyBusy &&
+      (generationError.toLowerCase().includes("gemini api key is not configured") ||
+       generationError.toLowerCase().includes("missing_api_key") ||
+       generationError.toLowerCase().includes("invalid_api_key") ||
+       generationError.toLowerCase().includes("gemini api key is missing") ||
+       generationError.toLowerCase().includes("gemini api key is invalid") ||
+       generationError.toLowerCase().includes("unauthenticated"));
 
     return (
       <div className="min-h-screen bg-gray-50/50 flex flex-col items-center justify-center p-6 text-center font-sans">

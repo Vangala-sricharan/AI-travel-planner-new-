@@ -59,6 +59,62 @@ export function TravelProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const safelyParseResponse = async (response: Response): Promise<{ ok: boolean; data: any; errorMessage: string }> => {
+    const status = response.status;
+    const contentType = response.headers.get("content-type") || "";
+    let data: any = null;
+    let text = "";
+
+    try {
+      text = await response.text();
+    } catch (err: any) {
+      return {
+        ok: false,
+        data: null,
+        errorMessage: `Network error: ${err?.message || "Failed to read server response."}`
+      };
+    }
+
+    if (text.trim().startsWith("{") || text.trim().startsWith("[") || contentType.includes("application/json")) {
+      try {
+        data = JSON.parse(text);
+      } catch {
+        // Not valid JSON
+      }
+    }
+
+    if (response.ok && data) {
+      return { ok: true, data, errorMessage: "" };
+    }
+
+    let errorMessage = "";
+    if (data && typeof data === "object") {
+      errorMessage = data.details || data.error || data.message || "";
+    }
+
+    if (!errorMessage) {
+      if (status === 503) {
+        errorMessage = "Gemini AI is temporarily experiencing high demand. Please retry in a few moments.";
+      } else if (status === 429) {
+        errorMessage = "Gemini request rate limit or quota reached. Please wait a moment before retrying.";
+      } else if (status === 401) {
+        errorMessage = "Gemini API key is not configured or unauthorized on the server.";
+      } else if (status === 404) {
+        errorMessage = "The requested itinerary endpoint was not found on the server.";
+      } else if (status === 500) {
+        if (text && text.length < 250 && !text.includes("<html") && !text.includes("<!DOCTYPE")) {
+          errorMessage = `Server Error (500): ${text.trim()}`;
+        } else {
+          errorMessage = "Server Error (500): An unexpected server error occurred. Please verify your deployment.";
+        }
+      } else {
+        errorMessage = `Request failed with HTTP status ${status}.`;
+      }
+    }
+
+    return { ok: false, data, errorMessage };
+  };
+
   const generateTrip = async (inputs: any) => {
     setIsGenerating(true);
     setGenerationError(null);
@@ -71,11 +127,13 @@ export function TravelProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify(inputs),
       });
 
-      const data = await response.json();
+      const parsed = await safelyParseResponse(response);
 
-      if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to generate itinerary. Please verify your connection.");
+      if (!parsed.ok) {
+        throw new Error(parsed.errorMessage || "Failed to generate itinerary. Please verify your connection.");
       }
+
+      const data = parsed.data;
 
       // Successfully generated plan
       const newTripId = "trip_" + Date.now();
@@ -250,11 +308,13 @@ export function TravelProvider({ children }: { children: ReactNode }) {
         }),
       });
 
-      const data = await response.json();
+      const parsed = await safelyParseResponse(response);
 
-      if (!response.ok) {
-        throw new Error(data.details || data.error || "Failed to modify itinerary.");
+      if (!parsed.ok) {
+        throw new Error(parsed.errorMessage || "Failed to modify itinerary.");
       }
+
+      const data = parsed.data;
 
       // Successfully updated plan
       const updatedHistory = savedTrips.map((item) => {
