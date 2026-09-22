@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { DollarSign, Plus, Trash2, PieChart, TrendingUp, AlertCircle } from "lucide-react";
+import { IndianRupee, Plus, Trash2, PieChart, TrendingUp, AlertCircle } from "lucide-react";
 import { BudgetBreakdown } from "../types";
+import { formatINRCurrency } from "../utils/currency";
 
 interface Expense {
   id: string;
@@ -113,7 +114,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
             Total Budget Limit
           </span>
           <span className="text-xl font-bold text-slate-800">
-            ${totalBudget.toLocaleString()}
+            {formatINRCurrency(totalBudget)}
           </span>
         </div>
 
@@ -122,7 +123,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
             Logged Spending
           </span>
           <span className={`text-xl font-bold ${isOverBudget ? "text-red-600" : "text-blue-600"}`}>
-            ${totalActual.toLocaleString()}
+            {formatINRCurrency(totalActual)}
           </span>
         </div>
 
@@ -131,7 +132,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
             Remaining Funds
           </span>
           <span className={`text-xl font-bold ${totalBudget - totalActual < 0 ? "text-red-500" : "text-emerald-600"}`}>
-            ${(totalBudget - totalActual).toLocaleString()}
+            {formatINRCurrency(totalBudget - totalActual)}
           </span>
         </div>
       </div>
@@ -140,7 +141,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-2 text-red-800 text-xs">
           <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-600 mt-0.5" />
           <div>
-            <span className="font-bold">Over Budget Alert!</span> You have exceeded your initial travel budget by <span className="font-bold">${(totalActual - totalBudget).toLocaleString()}</span>. Consider swapping out dynamic sights for free local experiences.
+            <span className="font-bold">Over Budget Alert!</span> You have exceeded your initial travel budget by <span className="font-bold">{formatINRCurrency(totalActual - totalBudget)}</span>. Consider swapping out dynamic sights for free local experiences.
           </div>
         </div>
       )}
@@ -168,7 +169,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
                   <div className="flex justify-between text-xs font-semibold">
                     <span className="text-slate-700">{cat.label}</span>
                     <span className="text-slate-400">
-                      ${actual.toLocaleString()} / ${cat.budget.toLocaleString()}{" "}
+                      {formatINRCurrency(actual)} / {formatINRCurrency(cat.budget)}{" "}
                       <span className={`font-bold ml-1 ${actual > cat.budget ? "text-red-600" : "text-slate-600"}`}>
                         ({rawPercent}%)
                       </span>
@@ -213,13 +214,13 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
-                    Cost (USD)
+                    Cost (₹)
                   </label>
                   <input
                     type="number"
                     required
                     min="1"
-                    placeholder="e.g. 20"
+                    placeholder="e.g. 200"
                     value={amount === 0 ? "" : amount}
                     onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
                     className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
@@ -276,7 +277,7 @@ export default function ExpenseTracker({ tripId, budgetBreakdown }: ExpenseTrack
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-800">${exp.amount}</span>
+                      <span className="font-bold text-slate-800">{formatINRCurrency(exp.amount)}</span>
                       <button
                         type="button"
                         onClick={() => handleDeleteExpense(exp.id)}

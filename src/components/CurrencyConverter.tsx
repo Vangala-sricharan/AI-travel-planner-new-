@@ -1,29 +1,31 @@
 import { useState, useEffect } from "react";
-import { DollarSign, RefreshCw, ArrowRightLeft } from "lucide-react";
+import { IndianRupee, RefreshCw, ArrowRightLeft } from "lucide-react";
+import { formatINR } from "../utils/currency";
 
 interface CurrencyConverterProps {
   destinationCurrency: string;
 }
 
 const EXCHANGE_RATES: Record<string, number> = {
-  USD: 1.0,
-  EUR: 0.92,
-  JPY: 155.4,
-  GBP: 0.79,
-  CAD: 1.36,
-  AUD: 1.51,
-  INR: 83.5,
-  CNY: 7.24,
-  MXN: 16.7,
-  CHF: 0.91,
-  NZD: 1.63,
+  INR: 1.0,
+  EUR: 0.011,
+  JPY: 1.86,
+  GBP: 0.0094,
+  CAD: 0.016,
+  AUD: 0.018,
+  CNY: 0.086,
+  AED: 0.044,
+  SGD: 0.016,
+  THB: 0.44,
+  CHF: 0.011,
+  NZD: 0.019,
 };
 
 export default function CurrencyConverter({ destinationCurrency }: CurrencyConverterProps) {
-  const [amount, setAmount] = useState<number>(100);
-  const [fromCurrency, setFromCurrency] = useState<string>("USD");
+  const [amount, setAmount] = useState<number>(1000);
+  const [fromCurrency, setFromCurrency] = useState<string>("INR");
   const [toCurrency, setToCurrency] = useState<string>(
-    destinationCurrency && EXCHANGE_RATES[destinationCurrency.toUpperCase()]
+    destinationCurrency && EXCHANGE_RATES[destinationCurrency.toUpperCase()] && destinationCurrency.toUpperCase() !== "INR"
       ? destinationCurrency.toUpperCase()
       : "EUR"
   );
@@ -32,7 +34,7 @@ export default function CurrencyConverter({ destinationCurrency }: CurrencyConve
   // Auto detect if destinationCurrency is valid or default to a fallback
   useEffect(() => {
     const formatted = destinationCurrency ? destinationCurrency.trim().toUpperCase() : "";
-    if (formatted && EXCHANGE_RATES[formatted]) {
+    if (formatted && EXCHANGE_RATES[formatted] && formatted !== "INR") {
       setToCurrency(formatted);
     }
   }, [destinationCurrency]);
@@ -40,9 +42,9 @@ export default function CurrencyConverter({ destinationCurrency }: CurrencyConve
   useEffect(() => {
     const rateFrom = EXCHANGE_RATES[fromCurrency] || 1.0;
     const rateTo = EXCHANGE_RATES[toCurrency] || 1.0;
-    // convert from -> USD -> to
-    const amountInUSD = amount / rateFrom;
-    const converted = amountInUSD * rateTo;
+    // convert from -> INR -> to
+    const amountInBase = amount / rateFrom;
+    const converted = amountInBase * rateTo;
     setResult(converted);
   }, [amount, fromCurrency, toCurrency]);
 
@@ -53,21 +55,28 @@ export default function CurrencyConverter({ destinationCurrency }: CurrencyConve
 
   const getCurrencySymbol = (code: string) => {
     switch (code) {
-      case "USD":
-        return "$";
+      case "INR":
+        return "₹";
       case "EUR":
         return "€";
       case "JPY":
         return "¥";
       case "GBP":
         return "£";
-      case "INR":
-        return "₹";
       case "CNY":
         return "¥";
+      case "AED":
+        return "AED";
       default:
         return code;
     }
+  };
+
+  const formatDisplayAmount = (cur: string, val: number) => {
+    if (cur === "INR") {
+      return formatINR(val);
+    }
+    return val.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
   return (
@@ -148,10 +157,10 @@ export default function CurrencyConverter({ destinationCurrency }: CurrencyConve
         <div className="bg-white p-4 rounded-xl border border-slate-200/50 text-center">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Result</p>
           <p className="text-lg font-black text-slate-900 mt-1">
-            {getCurrencySymbol(fromCurrency)} {amount.toLocaleString()} =
+            {getCurrencySymbol(fromCurrency)} {formatDisplayAmount(fromCurrency, amount)} =
           </p>
           <p className="text-xl font-black text-blue-600 mt-0.5 animate-pulse">
-            {getCurrencySymbol(toCurrency)} {result.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {getCurrencySymbol(toCurrency)} {formatDisplayAmount(toCurrency, result)}
           </p>
           <p className="text-[9px] text-slate-400 mt-1.5 italic">
             1 {fromCurrency} = {(EXCHANGE_RATES[toCurrency] / EXCHANGE_RATES[fromCurrency]).toFixed(4)} {toCurrency}

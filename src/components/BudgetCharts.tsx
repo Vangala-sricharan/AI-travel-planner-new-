@@ -11,6 +11,7 @@ import {
   Legend,
 } from "recharts";
 import { BudgetBreakdown } from "../types";
+import { formatINRCurrency } from "../utils/currency";
 
 interface BudgetChartsProps {
   budget: BudgetBreakdown;
@@ -29,11 +30,7 @@ export default function BudgetCharts({ budget }: BudgetChartsProps) {
   ].filter((item) => item.value > 0);
 
   const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(val);
+    return formatINRCurrency(val);
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
@@ -106,7 +103,7 @@ export default function BudgetCharts({ budget }: BudgetChartsProps) {
                   tickLine={false}
                 />
                 <YAxis
-                  tickFormatter={(val) => `$${val}`}
+                  tickFormatter={(val) => formatINRCurrency(val)}
                   tick={{ fill: "#94A3B8", fontSize: 10 }}
                   axisLine={false}
                   tickLine={false}

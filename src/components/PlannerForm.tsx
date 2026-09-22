@@ -4,7 +4,7 @@ import {
   Sparkles,
   MapPin,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Users,
   Compass,
   CheckCircle,
@@ -23,7 +23,7 @@ interface PlannerFormProps {
 export default function PlannerForm({ onSubmit, isGenerating, onBack, initialInputs }: PlannerFormProps) {
   const [destination, setDestination] = useState(initialInputs?.destination || "");
   const [currentLocation, setCurrentLocation] = useState(initialInputs?.currentLocation || "");
-  const [budget, setBudget] = useState(initialInputs?.budget || 1000);
+  const [budget, setBudget] = useState(initialInputs?.budget || 50000);
   const [travelers, setTravelers] = useState(initialInputs?.travelers || "1 Person");
   const [days, setDays] = useState(initialInputs?.days || 3);
   const [travelStyle, setTravelStyle] = useState(initialInputs?.travelStyle || "Balanced");
@@ -71,7 +71,7 @@ export default function PlannerForm({ onSubmit, isGenerating, onBack, initialInp
       return;
     }
     if (budget <= 0) {
-      setValidationError("Please provide a valid budget above $0.");
+      setValidationError("Please provide a valid budget above ₹0.");
       return;
     }
 
@@ -187,14 +187,14 @@ export default function PlannerForm({ onSubmit, isGenerating, onBack, initialInp
             {/* Total Budget Allocation */}
             <div>
               <label className="block text-[10px] text-slate-500 uppercase font-bold mb-2 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-blue-600" /> Total Budget (USD) *
+                <IndianRupee className="w-3.5 h-3.5 text-blue-600" /> Total Budget (₹) *
               </label>
               <input
                 type="number"
-                min="100"
-                step="50"
+                min="1000"
+                step="500"
                 value={budget}
-                onChange={(e) => setBudget(parseInt(e.target.value) || 100)}
+                onChange={(e) => setBudget(parseInt(e.target.value) || 1000)}
                 className="w-full bg-slate-50 border border-slate-200/70 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition font-bold text-slate-800"
                 required
               />

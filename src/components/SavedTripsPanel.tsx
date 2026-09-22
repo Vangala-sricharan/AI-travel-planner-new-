@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTravel } from "../context/TravelContext";
-import { Compass, Search, Calendar, Users, DollarSign, Trash2, Copy, Eye, ArrowLeft } from "lucide-react";
+import { Compass, Search, Calendar, Users, IndianRupee, Trash2, Copy, Eye, ArrowLeft } from "lucide-react";
+import { formatINRCurrency } from "../utils/currency";
 
 interface SavedTripsPanelProps {
   onBack: () => void;
@@ -115,7 +116,7 @@ export default function SavedTripsPanel({ onBack }: SavedTripsPanelProps) {
 
                 {/* Budget level */}
                 <div className="mt-4 flex items-center gap-1 text-[11px] font-bold text-emerald-600 bg-emerald-50/50 px-2.5 py-1 rounded-xl w-fit">
-                  <DollarSign className="w-3.5 h-3.5" /> Allocated: ${trip.inputs.budget} USD
+                  <IndianRupee className="w-3.5 h-3.5" /> Allocated: {formatINRCurrency(trip.inputs.budget)}
                 </div>
               </div>
 

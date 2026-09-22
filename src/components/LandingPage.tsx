@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Sparkles, Map, Calendar, DollarSign, ShieldCheck, ArrowRight, Compass, HelpCircle, Star, ShieldAlert } from "lucide-react";
+import { Sparkles, Map, Calendar, IndianRupee, ShieldCheck, ArrowRight, Compass, HelpCircle, Star, ShieldAlert } from "lucide-react";
 import TripTemplates from "./TripTemplates";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 
@@ -22,7 +22,7 @@ export default function LandingPage({ onStartPlanning, onViewHistory, savedTrips
       desc: "Visually pinned hotels, local restaurants, and primary tourist attractions integrated directly with custom-rendered cards.",
     },
     {
-      icon: <DollarSign className="w-5 h-5 text-emerald-500" />,
+      icon: <IndianRupee className="w-5 h-5 text-emerald-500" />,
       title: "Smart Budget Allocation",
       desc: "Live distribution pie-charts tracking your expenses across accommodation, transport, shopping, and emergencies.",
     },

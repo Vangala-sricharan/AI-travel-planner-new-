@@ -21,14 +21,14 @@ const PARIS_TEMPLATE: TravelPlan = {
     wind: "12 km/h"
   },
   budgetBreakdown: {
-    accommodation: 600,
-    food: 250,
-    travel: 80,
-    activities: 150,
-    shopping: 120,
-    emergency: 100,
-    taxes: 50,
-    total: 1350
+    accommodation: 55000,
+    food: 22000,
+    travel: 7500,
+    activities: 14000,
+    shopping: 11000,
+    emergency: 9000,
+    taxes: 4500,
+    total: 123000
   },
   packingList: [
     { id: "p1", item: "Universal Type C power plug adapter", category: "Electronics", completed: false },
@@ -48,8 +48,8 @@ const PARIS_TEMPLATE: TravelPlan = {
       theme: "Classic Monuments & Seine Cruise",
       activities: [
         { time: "09:00 AM", description: "Walk the historic gardens of Tuileries and marvel at Arc de Triomphe.", location: "Tuileries Gardens", travelTime: "15 mins walking", estimatedCost: 0, period: "morning" },
-        { time: "01:30 PM", description: "Lunch at classic Parisian bistro near Saint-Germain.", location: "Le Comptoir du Relais", travelTime: "20 mins metro", estimatedCost: 35, period: "afternoon" },
-        { time: "08:00 PM", description: "Enjoy a scenic sunset dinner cruise along the beautiful Seine River.", location: "Bateaux Parisiens", travelTime: "25 mins metro", estimatedCost: 85, period: "evening" }
+        { time: "01:30 PM", description: "Lunch at classic Parisian bistro near Saint-Germain.", location: "Le Comptoir du Relais", travelTime: "20 mins metro", estimatedCost: 3200, period: "afternoon" },
+        { time: "08:00 PM", description: "Enjoy a scenic sunset dinner cruise along the beautiful Seine River.", location: "Bateaux Parisiens", travelTime: "25 mins metro", estimatedCost: 7500, period: "evening" }
       ]
     },
     {
@@ -57,7 +57,7 @@ const PARIS_TEMPLATE: TravelPlan = {
       theme: "Artistic Immersion in Montmartre",
       activities: [
         { time: "10:00 AM", description: "Explore the cobblestone alleys of Montmartre and visit Sacré-Cœur Basilica.", location: "Sacré-Cœur", travelTime: "30 mins metro", estimatedCost: 0, period: "morning" },
-        { time: "03:00 PM", description: "Admire legendary impressionist masterpieces at the Musée d'Orsay.", location: "Musée d'Orsay", travelTime: "20 mins taxi", estimatedCost: 18, period: "afternoon" }
+        { time: "03:00 PM", description: "Admire legendary impressionist masterpieces at the Musée d'Orsay.", location: "Musée d'Orsay", travelTime: "20 mins taxi", estimatedCost: 1600, period: "afternoon" }
       ]
     }
   ]
@@ -82,14 +82,14 @@ const TOKYO_TEMPLATE: TravelPlan = {
     wind: "8 km/h"
   },
   budgetBreakdown: {
-    accommodation: 550,
-    food: 320,
-    travel: 90,
-    activities: 130,
-    shopping: 250,
-    emergency: 150,
-    taxes: 40,
-    total: 1530
+    accommodation: 48000,
+    food: 28000,
+    travel: 8000,
+    activities: 12000,
+    shopping: 22000,
+    emergency: 13000,
+    taxes: 3500,
+    total: 134500
   },
   packingList: [
     { id: "t1", item: "Japanese yen physical banknotes", category: "Documents", completed: false },
@@ -109,7 +109,7 @@ const TOKYO_TEMPLATE: TravelPlan = {
       activities: [
         { time: "09:30 AM", description: "Walk the tranquil forested paths of Meiji Jingu Shrine inside Harajuku.", location: "Meiji Shrine", travelTime: "10 mins train", estimatedCost: 0, period: "morning" },
         { time: "02:00 PM", description: "Cross the legendary Shibuya Scramble and shop at Shibuya 109.", location: "Shibuya Pedestrian Crossing", travelTime: "15 mins walking", estimatedCost: 0, period: "afternoon" },
-        { time: "07:30 PM", description: "Dine on authentic Yakitori skewers along Omoide Yokocho alleyway.", location: "Memory Lane Shinjuku", travelTime: "10 mins train", estimatedCost: 25, period: "evening" }
+        { time: "07:30 PM", description: "Dine on authentic Yakitori skewers along Omoide Yokocho alleyway.", location: "Memory Lane Shinjuku", travelTime: "10 mins train", estimatedCost: 2200, period: "evening" }
       ]
     }
   ]

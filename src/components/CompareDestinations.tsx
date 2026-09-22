@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRightLeft, DollarSign, CloudSun, Compass, Globe, Info } from "lucide-react";
+import { ArrowRightLeft, IndianRupee, CloudSun, Compass, Globe, Info } from "lucide-react";
 
 interface CompareItem {
   name: string;
@@ -16,7 +16,7 @@ interface CompareItem {
 const PRESET_PLACES: Record<string, CompareItem> = {
   tokyo: {
     name: "Tokyo, Japan",
-    budget: "Medium-High ($180 - $250/day)",
+    budget: "Medium-High (₹14,999 - ₹20,999/day)",
     currency: "JPY (¥)",
     language: "Japanese",
     weather: "Temperate, four distinct seasons",
@@ -27,7 +27,7 @@ const PRESET_PLACES: Record<string, CompareItem> = {
   },
   paris: {
     name: "Paris, France",
-    budget: "High ($200 - $300/day)",
+    budget: "High (₹16,999 - ₹24,999/day)",
     currency: "EUR (€)",
     language: "French",
     weather: "Mild winters, warm summers",
@@ -38,7 +38,7 @@ const PRESET_PLACES: Record<string, CompareItem> = {
   },
   bali: {
     name: "Bali, Indonesia",
-    budget: "Budget-Friendly ($40 - $80/day)",
+    budget: "Budget-Friendly (₹3,499 - ₹6,999/day)",
     currency: "IDR (Rp)",
     language: "Indonesian / Balinese",
     weather: "Tropical, warm year-round",
@@ -49,7 +49,7 @@ const PRESET_PLACES: Record<string, CompareItem> = {
   },
   london: {
     name: "London, UK",
-    budget: "High ($220 - $320/day)",
+    budget: "High (₹18,499 - ₹26,999/day)",
     currency: "GBP (£)",
     language: "English",
     weather: "Mild, frequent light showers",
@@ -60,8 +60,8 @@ const PRESET_PLACES: Record<string, CompareItem> = {
   },
   nyc: {
     name: "New York, USA",
-    budget: "Very High ($250 - $400/day)",
-    currency: "USD ($)",
+    budget: "Very High (₹20,999 - ₹33,499/day)",
+    currency: "INR (₹)",
     language: "English",
     weather: "Hot summers, freezing winters",
     temp: "13°C (55°F)",
@@ -71,7 +71,7 @@ const PRESET_PLACES: Record<string, CompareItem> = {
   },
   rome: {
     name: "Rome, Italy",
-    budget: "Medium ($120 - $200/day)",
+    budget: "Medium (₹9,999 - ₹16,999/day)",
     currency: "EUR (€)",
     language: "Italian",
     weather: "Mediterranean, warm summers",
@@ -148,7 +148,7 @@ export default function CompareDestinations() {
           <tbody className="divide-y divide-slate-100">
             <tr>
               <td className="px-4 py-3 font-bold text-slate-500 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> Daily Cost Allocation
+                <IndianRupee className="w-3.5 h-3.5 text-emerald-500" /> Daily Cost Allocation
               </td>
               <td className="px-4 py-3 font-semibold text-slate-800">{left?.budget}</td>
               <td className="px-4 py-3 font-semibold text-slate-800">{right?.budget}</td>

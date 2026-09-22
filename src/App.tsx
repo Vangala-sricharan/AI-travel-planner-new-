@@ -122,28 +122,53 @@ function TravelPlannerApp() {
 
   // Render Error View
   if (generationError) {
+    const isTemporarilyBusy =
+      generationError.toLowerCase().includes("high demand") ||
+      generationError.toLowerCase().includes("unavailable") ||
+      generationError.toLowerCase().includes("503") ||
+      generationError.toLowerCase().includes("busy") ||
+      generationError.toLowerCase().includes("rate limit") ||
+      generationError.toLowerCase().includes("spikes in demand");
+
+    const isMissingKey =
+      generationError.toLowerCase().includes("api key") ||
+      generationError.toLowerCase().includes("gemini_api_key") ||
+      generationError.toLowerCase().includes("missing key");
+
     return (
       <div className="min-h-screen bg-gray-50/50 flex flex-col items-center justify-center p-6 text-center font-sans">
         <div className="max-w-md bg-white border border-gray-100 p-8 rounded-3xl shadow-sm space-y-6">
-          <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto">
+          <div className={`w-12 h-12 ${isTemporarilyBusy ? "bg-amber-50 text-amber-600" : "bg-red-50 text-red-600"} rounded-full flex items-center justify-center mx-auto`}>
             <AlertTriangle className="w-6 h-6 animate-bounce" />
           </div>
 
           <div className="space-y-2">
             <h2 className="text-lg font-extrabold text-gray-900 tracking-tight">
-              Failed to Generate Trip
+              {isTemporarilyBusy ? "Gemini Service Busy" : "Failed to Generate Trip"}
             </h2>
             <p className="text-xs text-gray-500 leading-relaxed">
               {generationError}
             </p>
           </div>
 
-          {/* Quick instructions for the developer preview key setup */}
-          <div className="bg-amber-50/60 p-4 rounded-xl text-left text-amber-900 border border-amber-100/40 text-[11px] leading-relaxed">
+          {/* Context-aware information panel */}
+          <div className={`${isTemporarilyBusy ? "bg-blue-50/60 border-blue-100/60 text-blue-900" : "bg-amber-50/60 border-amber-100/40 text-amber-900"} p-4 rounded-xl text-left border text-[11px] leading-relaxed`}>
             <div className="flex gap-2">
-              <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <Info className={`w-4 h-4 ${isTemporarilyBusy ? "text-blue-600" : "text-amber-600"} flex-shrink-0 mt-0.5`} />
               <div>
-                <span className="font-bold">Missing Gemini Key?</span> If you haven't supplied your custom API key, configure it in the <span className="font-bold">Settings &gt; Secrets</span> panel as <span className="font-bold">GEMINI_API_KEY</span>. Alternatively, ensure your internet connection is active and retry.
+                {isTemporarilyBusy ? (
+                  <>
+                    <span className="font-bold">High Demand Spike:</span> The Gemini AI model is currently handling a temporary spike in traffic. We attempted automatic retries with backoff. Click <span className="font-bold">"Retry Sync"</span> in a few seconds to request your itinerary again.
+                  </>
+                ) : isMissingKey ? (
+                  <>
+                    <span className="font-bold">Missing Gemini Key?</span> Please configure your custom API key in the <span className="font-bold">Settings &gt; Secrets</span> panel as <span className="font-bold">GEMINI_API_KEY</span>. Alternatively, ensure your internet connection is active and retry.
+                  </>
+                ) : (
+                  <>
+                    <span className="font-bold">Trip Planner Notice:</span> Please ensure your internet connection is active. You can adjust your inputs or click <span className="font-bold">"Retry Sync"</span> to attempt generation again.
+                  </>
+                )}
               </div>
             </div>
           </div>

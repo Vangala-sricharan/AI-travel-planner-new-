@@ -2,7 +2,7 @@ import { useState, FormEvent } from "react";
 import {
   Compass,
   Calendar,
-  DollarSign,
+  IndianRupee,
   Briefcase,
   ShieldCheck,
   MapPin,
@@ -41,6 +41,7 @@ import ExpenseTracker from "./ExpenseTracker";
 import DestinationInsights from "./DestinationInsights";
 import TravelReminders from "./TravelReminders";
 import ShareModal from "./ShareModal";
+import { formatINRCurrency } from "../utils/currency";
 
 interface TripDetailProps {
   plan: TravelPlan;
@@ -154,7 +155,7 @@ export default function TripDetail({ plan, tripId, onBack }: TripDetailProps) {
         
         icsContent += "BEGIN:VEVENT\n";
         icsContent += `SUMMARY:Day ${dayPlan.day} - ${act.location}\n`;
-        icsContent += `DESCRIPTION:${act.description}. Cost: ${act.estimatedCost} USD. Travel time: ${act.travelTime}\n`;
+        icsContent += `DESCRIPTION:${act.description}. Cost: ${act.estimatedCost === 0 ? "Free" : formatINRCurrency(act.estimatedCost)}. Travel time: ${act.travelTime}\n`;
         icsContent += `LOCATION:${act.location}, ${plan.destination}\n`;
         icsContent += `DTSTART;VALUE=DATE:${formattedDate}\n`;
         icsContent += `DTEND;VALUE=DATE:${formattedDate}\n`;
@@ -324,7 +325,7 @@ export default function TripDetail({ plan, tripId, onBack }: TripDetailProps) {
       <div className="flex border-b border-slate-100 gap-2 mb-8 overflow-x-auto pb-1 select-none">
         {[
           { id: "itinerary", label: "Itinerary & Map", icon: <Compass className="w-4 h-4" /> },
-          { id: "budget", label: "Budget & Expenses", icon: <DollarSign className="w-4 h-4" /> },
+          { id: "budget", label: "Budget & Expenses", icon: <IndianRupee className="w-4 h-4" /> },
           { id: "packing", label: "Packing Checklist", icon: <Briefcase className="w-4 h-4" /> },
           { id: "safety", label: "Local Survival Guide", icon: <ShieldCheck className="w-4 h-4" /> },
           { id: "insights", label: "Local Insights", icon: <BookOpen className="w-4 h-4" /> },
@@ -442,7 +443,7 @@ export default function TripDetail({ plan, tripId, onBack }: TripDetailProps) {
                                 <span className="font-semibold text-slate-700">Travel duration:</span> {act.travelTime}
                               </span>
                               <span className="bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded font-bold">
-                                Cost: {act.estimatedCost === 0 ? "Free" : `$${act.estimatedCost}`}
+                                Cost: {act.estimatedCost === 0 ? "Free" : formatINRCurrency(act.estimatedCost)}
                               </span>
                             </div>
                           </div>
@@ -501,7 +502,7 @@ export default function TripDetail({ plan, tripId, onBack }: TripDetailProps) {
                   Exchange Rate Converter
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">
-                  Convert amounts quickly from USD into local <span className="font-bold text-slate-800">{plan.currency}</span>.
+                  Convert amounts quickly between Indian Rupees (₹) and local <span className="font-bold text-slate-800">{plan.currency}</span>.
                 </p>
                 <CurrencyConverter destinationCurrency={plan.currency} />
               </div>

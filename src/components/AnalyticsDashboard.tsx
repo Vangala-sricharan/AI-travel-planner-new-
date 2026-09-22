@@ -1,6 +1,7 @@
 import { useTravel } from "../context/TravelContext";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie } from "recharts";
-import { Compass, Calendar, DollarSign, BarChart3, TrendingUp, Award, Clock } from "lucide-react";
+import { Compass, Calendar, IndianRupee, BarChart3, TrendingUp, Award, Clock } from "lucide-react";
+import { formatINRCurrency } from "../utils/currency";
 
 export default function AnalyticsDashboard() {
   const { savedTrips } = useTravel();
@@ -15,7 +16,7 @@ export default function AnalyticsDashboard() {
     : 4;
   const totalBudgetSpent = hasTrips
     ? savedTrips.reduce((acc, t) => acc + t.plan.budgetBreakdown.total, 0)
-    : 3400;
+    : 250000;
 
   // Pie chart categories allocation
   const getPieData = () => {
@@ -41,11 +42,11 @@ export default function AnalyticsDashboard() {
       ];
     } else {
       return [
-        { name: "Accommodation", value: 1600, color: "#3b82f6" },
-        { name: "Dining & Food", value: 850, color: "#ef4444" },
-        { name: "Transit", value: 450, color: "#f59e0b" },
-        { name: "Activities", value: 300, color: "#10b981" },
-        { name: "Shopping", value: 200, color: "#6366f1" },
+        { name: "Accommodation", value: 120000, color: "#3b82f6" },
+        { name: "Dining & Food", value: 65000, color: "#ef4444" },
+        { name: "Transit", value: 35000, color: "#f59e0b" },
+        { name: "Activities", value: 25000, color: "#10b981" },
+        { name: "Shopping", value: 15000, color: "#6366f1" },
       ];
     }
   };
@@ -60,9 +61,9 @@ export default function AnalyticsDashboard() {
       }));
     } else {
       return [
-        { name: "Paris", cost: 1350, days: 2 },
-        { name: "Tokyo", cost: 1530, days: 3 },
-        { name: "Bali", cost: 520, days: 5 },
+        { name: "Paris", cost: 123000, days: 2 },
+        { name: "Tokyo", cost: 134500, days: 3 },
+        { name: "Bali", cost: 45000, days: 5 },
       ];
     }
   };
@@ -110,11 +111,11 @@ export default function AnalyticsDashboard() {
 
         <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/50 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <DollarSign className="w-5 h-5" />
+            <IndianRupee className="w-5 h-5" />
           </div>
           <div>
             <span className="block text-[10px] font-bold text-slate-400 uppercase">Cumulative Budget</span>
-            <span className="text-base font-black text-slate-800">${totalBudgetSpent.toLocaleString()}</span>
+            <span className="text-base font-black text-slate-800">{formatINRCurrency(totalBudgetSpent)}</span>
           </div>
         </div>
 
@@ -153,7 +154,7 @@ export default function AnalyticsDashboard() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
+                <Tooltip formatter={(value) => formatINRCurrency(Number(value))} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -171,14 +172,14 @@ export default function AnalyticsDashboard() {
         {/* Bar Chart */}
         <div className="bg-slate-50 border border-slate-200 p-5 rounded-2xl">
           <h3 className="text-xs font-extrabold text-slate-700 uppercase tracking-widest mb-4">
-            Destination Cost Comparisons ($ USD)
+            Destination Cost Comparisons (₹ INR)
           </h3>
           <div className="w-full h-56">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={getBarData()} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <XAxis dataKey="name" stroke="#64748b" fontSize={10} fontWeight="bold" />
-                <YAxis stroke="#64748b" fontSize={10} />
-                <Tooltip formatter={(value) => `$${Number(value).toLocaleString()}`} />
+                <YAxis stroke="#64748b" fontSize={10} tickFormatter={(val) => formatINRCurrency(Number(val))} />
+                <Tooltip formatter={(value) => formatINRCurrency(Number(value))} />
                 <Bar dataKey="cost" fill="#3b82f6" radius={[6, 6, 0, 0]}>
                   {getBarData().map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={index % 2 === 0 ? "#2563eb" : "#3b82f6"} />

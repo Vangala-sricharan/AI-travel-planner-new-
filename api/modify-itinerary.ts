@@ -1,5 +1,7 @@
+import "dotenv/config";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenAI, Type } from "@google/genai";
+import { generateContentWithRetry, formatGeminiError } from "./gemini-client.ts";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Only allow POST requests
@@ -13,9 +15,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const apiKey = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(400).json({
+      return res.status(401).json({
         error: "API key is missing.",
-        details: "Please provide either GEMINI_API_KEY or VITE_GEMINI_API_KEY in your environment variables."
+        details: "Please provide either GEMINI_API_KEY or VITE_GEMINI_API_KEY in your environment variables.",
+        retryable: false
       });
     }
 
@@ -23,7 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!currentPlan || !instruction) {
       return res.status(400).json({
         error: "Missing parameters.",
-        details: "Both currentPlan and instruction are required to modify an itinerary."
+        details: "Both currentPlan and instruction are required to modify an itinerary.",
+        retryable: false
       });
     }
 
@@ -41,10 +45,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       
       Original travel parameters from user form (for context):
       - Style: ${inputs?.travelStyle || "Balanced"}
-      - Budget: ${inputs?.budget || "Standard"} USD
+      - Budget: ₹${inputs?.budget || "Standard"} (Indian Rupees / INR)
       - Travelers: ${inputs?.travelers || "1 person"}
       - Mode: ${inputs?.transportation || "Any"}
       - Accommodations: ${inputs?.accommodation || "Comfortable"}
+
+      IMPORTANT CURRENCY REQUIREMENT:
+      All costs, ticket prices, accommodation, food, activities, and budget items MUST be calculated and stated strictly in Indian Rupees (INR / ₹). Store all ticket prices and cost values in INR. Never use US Dollars.
 
       Current Travel Plan:
       ${JSON.stringify(currentPlan)}
@@ -53,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       Adjust the itinerary activities, weather, budget breakdown, packing checklist, or map pins as requested by the user, and keep all unchanged elements intact. Ensure any new key coordinates added to mapPins have highly accurate latitude and longitude.
     `;
 
-    // Use the same response schema to ensure exact structural typing
+    // Strict JSON schema matching the travel plan structure
     const responseSchema = {
       type: Type.OBJECT,
       properties: {
@@ -76,24 +83,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           properties: {
             forecast: { type: Type.STRING },
             temperature: { type: Type.STRING },
-            humidity: { type: Type.STRING },
-            wind: { type: Type.STRING }
+            rainfallChance: { type: Type.STRING },
+            packingAdvice: { type: Type.STRING }
           },
-          required: ["forecast", "temperature", "humidity", "wind"]
+          required: ["forecast", "temperature", "rainfallChance", "packingAdvice"]
         },
         budgetBreakdown: {
           type: Type.OBJECT,
           properties: {
-            accommodation: { type: Type.NUMBER },
-            food: { type: Type.NUMBER },
-            travel: { type: Type.NUMBER },
-            activities: { type: Type.NUMBER },
-            shopping: { type: Type.NUMBER },
-            emergency: { type: Type.NUMBER },
-            taxes: { type: Type.NUMBER },
-            total: { type: Type.NUMBER }
+            accommodation: { type: Type.NUMBER, description: "Total budget for accommodation in Indian Rupees (₹)" },
+            food: { type: Type.NUMBER, description: "Total budget for food in Indian Rupees (₹)" },
+            travel: { type: Type.NUMBER, description: "Total budget for transportation in Indian Rupees (₹)" },
+            activities: { type: Type.NUMBER, description: "Total budget for activities in Indian Rupees (₹)" },
+            shopping: { type: Type.NUMBER, description: "Total budget for shopping/souvenirs in Indian Rupees (₹)" },
+            emergency: { type: Type.NUMBER, description: "Emergency fund in Indian Rupees (₹)" },
+            taxes: { type: Type.NUMBER, description: "Local taxes/fees in Indian Rupees (₹)" },
+            total: { type: Type.NUMBER, description: "Sum of all cost categories in Indian Rupees (₹)" }
           },
-          required: ["accommodation", "food", "travel", "activities", "shopping", "emergency", "taxes", "total"]
+          required: [
+            "accommodation",
+            "food",
+            "travel",
+            "activities",
+            "shopping",
+            "emergency",
+            "taxes",
+            "total"
+          ]
         },
         packingList: {
           type: Type.ARRAY,
@@ -113,13 +129,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           items: {
             type: Type.OBJECT,
             properties: {
+              id: { type: Type.STRING },
               name: { type: Type.STRING },
-              type: { type: Type.STRING },
               lat: { type: Type.NUMBER },
               lng: { type: Type.NUMBER },
+              type: { type: Type.STRING },
               description: { type: Type.STRING }
             },
-            required: ["name", "type", "lat", "lng", "description"]
+            required: ["id", "name", "lat", "lng", "type", "description"]
           }
         },
         itinerary: {
@@ -127,7 +144,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           items: {
             type: Type.OBJECT,
             properties: {
-              day: { type: Type.INTEGER },
+              day: { type: Type.NUMBER },
               theme: { type: Type.STRING },
               activities: {
                 type: Type.ARRAY,
@@ -138,7 +155,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     description: { type: Type.STRING },
                     location: { type: Type.STRING },
                     travelTime: { type: Type.STRING },
-                    estimatedCost: { type: Type.NUMBER },
+                    estimatedCost: { type: Type.NUMBER, description: "Estimated activity cost in Indian Rupees (₹)" },
                     period: { type: Type.STRING }
                   },
                   required: ["time", "description", "location", "travelTime", "estimatedCost", "period"]
@@ -164,13 +181,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       ]
     };
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.6-flash",
+    const selectedModel = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+
+    const response = await generateContentWithRetry(ai, {
+      model: selectedModel,
       contents: prompt,
       config: {
         responseMimeType: "application/json",
         responseSchema: responseSchema,
-        systemInstruction: "You are an expert travel consultant and AI assistant. Your task is to update the provided travel plan strictly according to the user's modifications while maintaining the identical JSON schema. Only modify what is requested. Keep everything else intact. Never return conversational text. Return only the updated JSON object."
+        systemInstruction: "You are an expert travel consultant and AI assistant. Your task is to update the provided travel plan strictly according to the user's modifications while maintaining the identical JSON schema. Only modify what is requested. Keep everything else intact. All costs and prices must remain in Indian Rupees (INR/₹). Never return conversational text. Return only the updated JSON object."
       }
     });
 
@@ -183,9 +202,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json(modifiedPlan);
   } catch (error: any) {
     console.error("Gemini API modification error:", error);
-    return res.status(500).json({
-      error: "Failed to modify travel plan.",
-      details: error.message || error.toString()
+    const formatted = formatGeminiError(error);
+    return res.status(formatted.statusCode).json({
+      error: formatted.error,
+      details: formatted.details,
+      retryable: formatted.retryable
     });
   }
 }
